@@ -28,4 +28,10 @@ public class TodoRestController {
     public ResponseEntity<List<Todo>> listTodo(@PathVariable("user") String user) {
         return ResponseEntity.ok(todoService.list(user));
     }
+
+    @PutMapping("/important")
+    public ResponseEntity<String> updateImportant(@RequestBody UpdateTodo update) {
+        todoService.markImportant(update.getId(), update.getFlag());
+        return ResponseEntity.ok(null);
+    }
 }

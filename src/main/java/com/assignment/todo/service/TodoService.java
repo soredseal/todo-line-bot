@@ -20,6 +20,9 @@ public class TodoService {
     private TodoRepository todoRepository;
 
     @Autowired
+    private MongoTemplate template;
+
+    @Autowired
     private LineService lineService;
 
     public Todo add(String user, String text) {
@@ -59,5 +62,12 @@ public class TodoService {
 
     public List<Todo> list(String user) {
         return todoRepository.findByUser(user);
+    }
+
+    public Todo markImportant(String id, Boolean flag) {
+        Query q = new Query(Criteria.where("id").is(id));
+        Update u = Update
+                .update("important", flag);
+        return this.template.findAndModify(q, u, Todo.class);
     }
 }
