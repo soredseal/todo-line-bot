@@ -70,4 +70,36 @@ public class TodoServiceTest {
         todoService.add(user, text);
         verify(todoRepository).save(ArgumentMatchers.refEq(expected));
     }
+
+    @Test
+    public void addTodoWithTodayNoTime() {
+        String user = "user";
+        String text =  "กินแล้ว ไปนอน : today : ";
+
+        Todo expected = new Todo();
+        expected.setUser(user);
+        expected.setTask("กินแล้ว ไปนอน");
+        expected.setCompleted(false);
+        expected.setImportant(false);
+        expected.setTime(LocalDate.now().atTime(12, 0));
+
+        todoService.add(user, text);
+        verify(todoRepository).save(ArgumentMatchers.refEq(expected));
+    }
+
+    @Test
+    public void addTodoWithDateNoTime() {
+        String user = "user";
+        String text =  "ทำงาน : 21/10/18";
+
+        Todo expected = new Todo();
+        expected.setUser(user);
+        expected.setTask("ทำงาน");
+        expected.setCompleted(false);
+        expected.setImportant(false);
+        expected.setTime(LocalDateTime.parse("21/10/2018 12:00", DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+
+        todoService.add(user, text);
+        verify(todoRepository).save(ArgumentMatchers.refEq(expected));
+    }
 }

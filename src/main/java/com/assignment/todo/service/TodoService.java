@@ -22,7 +22,7 @@ public class TodoService {
         String[] data = text.split(" : ");
         String task = data[0];
         String date = data[1];
-        String time = data[2];
+        String time = data.length > 2 ? data[2]:"12:00";
         try {
             if (data[1].equalsIgnoreCase("today")) {
                 date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yy"));
