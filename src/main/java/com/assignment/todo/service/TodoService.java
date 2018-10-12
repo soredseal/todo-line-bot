@@ -70,4 +70,11 @@ public class TodoService {
                 .update("important", flag);
         return this.template.findAndModify(q, u, Todo.class);
     }
+
+    public Todo markCompleted(String id, Boolean flag) {
+        Query q = new Query(Criteria.where("id").is(id));
+        Update u = Update
+                .update("completed", flag);
+        return this.template.findAndModify(q, u, Todo.class);
+    }
 }

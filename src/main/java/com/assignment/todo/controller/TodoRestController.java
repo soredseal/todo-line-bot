@@ -34,4 +34,10 @@ public class TodoRestController {
         todoService.markImportant(update.getId(), update.getFlag());
         return ResponseEntity.ok(null);
     }
+
+    @PutMapping("/completed")
+    public ResponseEntity<String> updateCompletes(@RequestBody UpdateTodo update) {
+        todoService.markCompleted(update.getId(), update.getFlag());
+        return ResponseEntity.ok(null);
+    }
 }
