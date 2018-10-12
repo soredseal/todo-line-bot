@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
 @Service
 public class TodoService {
@@ -20,17 +19,22 @@ public class TodoService {
 
     public Todo add(String user, String text) {
         String[] data = text.split(" : ");
-        String task = data[0];
-        String date = data[1];
-        String time = data.length > 2 ? data[2]:"12:00";
+        String task;
+        String date;
+        String time;
+
         try {
+            task = data[0];
+            date = data[1].replace("\n", "");
+            time = data.length > 2 ? data[2].replace("\n", ""):"12:00";
             if (data[1].equalsIgnoreCase("today")) {
                 date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yy"));
             } else if (data[1].equalsIgnoreCase("tomorrow")) {
                 date = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yy"));
             }
-        } catch (DateTimeParseException ex) {
-            lineService.dateFormatError(ex);
+        } catch (Exception ex) {
+            lineService.error(ex);
+            return null;
         }
         String dateTime = String.join(" ", date, time);
 

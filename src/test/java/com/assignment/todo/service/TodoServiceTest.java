@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -20,6 +21,8 @@ public class TodoServiceTest {
 
     @Mock
     private TodoRepository todoRepository;
+    @Mock
+    private LineService lineService;
     @InjectMocks
     private TodoService todoService;
 
@@ -101,5 +104,30 @@ public class TodoServiceTest {
 
         todoService.add(user, text);
         verify(todoRepository).save(ArgumentMatchers.refEq(expected));
+    }
+
+    @Test
+    public void addTodoWithNewLine() {
+        String user = "user";
+        String text =  "ทำงาน\nหนักมาก : \n21/10/18";
+
+        Todo expected = new Todo();
+        expected.setUser(user);
+        expected.setTask("ทำงาน\nหนักมาก");
+        expected.setCompleted(false);
+        expected.setImportant(false);
+        expected.setTime(LocalDateTime.parse("21/10/2018 12:00", DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+
+        todoService.add(user, text);
+        verify(todoRepository).save(ArgumentMatchers.refEq(expected));
+    }
+
+    @Test
+    public void addTodoWithNoColon() {
+        String user = "user";
+        String text =  "ทำงาน 21/10/18";
+
+        todoService.add(user, text);
+        verify(lineService, times(1)).error(ArgumentMatchers.any());
     }
 }
