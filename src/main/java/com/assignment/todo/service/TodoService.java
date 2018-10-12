@@ -3,11 +3,16 @@ package com.assignment.todo.service;
 import com.assignment.todo.model.Todo;
 import com.assignment.todo.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 public class TodoService {
@@ -24,12 +29,16 @@ public class TodoService {
         String time;
 
         try {
-            task = data[0];
-            date = data[1].replace("\n", "");
-            time = data.length > 2 ? data[2].replace("\n", ""):"12:00";
-            if (data[1].equalsIgnoreCase("today")) {
+            task = data[0].trim();
+            date = data[1].trim().replace("\n", "");
+            time = data.length > 2 ? data[2].trim().replace("\n", ""):"12:00";
+            if (time.length() < 5) {
+                time = "0".concat(time);
+            }
+
+            if (date.equalsIgnoreCase("today")) {
                 date = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yy"));
-            } else if (data[1].equalsIgnoreCase("tomorrow")) {
+            } else if (date.equalsIgnoreCase("tomorrow")) {
                 date = LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd/MM/yy"));
             }
         } catch (Exception ex) {
@@ -48,4 +57,7 @@ public class TodoService {
         return todoRepository.save(todo);
     }
 
+    public List<Todo> list(String user) {
+        return todoRepository.findByUser(user);
+    }
 }

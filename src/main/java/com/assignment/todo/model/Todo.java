@@ -1,26 +1,27 @@
 package com.assignment.todo.model;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
 @Document(collection = "todo")
+@CompoundIndex(name ="user_time",def = "{'user': 1, 'time': 1}")
 public class Todo {
     @Id
-    private ObjectId id;
+    private String id;
     private String user;
     private String task;
     private LocalDateTime time;
     private Boolean completed;
     private Boolean important;
 
-    public ObjectId getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(ObjectId id) {
+    public void setId(String id) {
         this.id = id;
     }
 
