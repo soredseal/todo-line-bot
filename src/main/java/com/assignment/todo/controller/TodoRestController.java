@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -35,7 +36,14 @@ public class TodoRestController {
             lineService.error(new Exception("Invalid signature"));
             return ResponseEntity.ok(null);
         }
-        message.getEvents().forEach(lineEvent -> todoService.add(lineEvent.getSource().getUserId(), lineEvent.getMessage().getText()));
+        message.getEvents().forEach(lineEvent -> {
+            String text = lineEvent.getMessage().getText();
+            if (text.equalsIgnoreCase("edit")) {
+                lineService.reply(lineEvent.getReplyToken(), Collections.singletonList("line://app/1614151390-875ZVPaa"));
+                return;
+            }
+            todoService.add(lineEvent.getSource().getUserId(), text);
+        });
         return ResponseEntity.ok(null);
     }
 

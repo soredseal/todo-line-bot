@@ -2,8 +2,6 @@ package com.assignment.todo.service;
 
 import com.assignment.todo.model.Todo;
 import com.assignment.todo.model.TodoSummary;
-import com.assignment.todo.model.TodoSummaryInfo;
-import com.assignment.todo.model.TodoSummaryList;
 import com.assignment.todo.repository.TodoRepository;
 import com.mongodb.BasicDBObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +9,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
-import org.springframework.data.mongodb.core.aggregation.DateOperators;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -90,7 +87,7 @@ public class TodoService {
         return list(user);
     }
 
-    @Scheduled(cron="0 17 12,18,20 * * *", zone="Asia/Bangkok")
+    @Scheduled(cron="0 0 12,18 * * *", zone="Asia/Bangkok")
     public void summary() {
         TypedAggregation<Todo> taskAggregation = Aggregation.newAggregation(Todo.class,
                                                             Aggregation.match(Criteria.where("time").gte(LocalDate.now())),
