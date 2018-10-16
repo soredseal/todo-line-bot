@@ -1,13 +1,22 @@
 package com.assignment.todo.service;
 
 import com.assignment.todo.model.Todo;
+import com.assignment.todo.model.TodoSummary;
+import com.assignment.todo.model.TodoSummaryInfo;
+import com.assignment.todo.model.TodoSummaryList;
 import com.assignment.todo.repository.TodoRepository;
+import com.mongodb.BasicDBObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.DateOperators;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,7 +44,7 @@ public class TodoService {
         try {
             task = data[0].trim();
             date = data[1].trim().replace("\n", "");
-            time = data.length > 2 ? data[2].trim().replace("\n", ""):"12:00";
+            time = data.length > 2 ? data[2].trim().replace("\n", "") : "12:00";
             if (time.length() < 5) {
                 time = "0".concat(time);
             }
@@ -79,5 +88,28 @@ public class TodoService {
                 .update("completed", flag);
         this.template.findAndModify(q, u, Todo.class);
         return list(user);
+    }
+
+    @Scheduled(cron="0 17 12,18,20 * * *", zone="Asia/Bangkok")
+    public void summary() {
+        TypedAggregation<Todo> taskAggregation = Aggregation.newAggregation(Todo.class,
+                                                            Aggregation.match(Criteria.where("time").gte(LocalDate.now())),
+                                                            Aggregation.group("user", "completed")
+                                                                    .last("user").as("user")
+                                                                    .last("completed").as("completed")
+                                                                    .count().as("tasks"),
+                                                            Aggregation.group("user")
+                                                                    .push(new BasicDBObject
+                                                                            ("completed", "$completed").append
+                                                                            ("tasks", "$tasks")).as("info"),
+                                                            Aggregation.project("info")
+                                                                    .and("user").previousOperation());
+
+        AggregationResults<TodoSummary> results = template.
+                aggregate(taskAggregation, TodoSummary.class);
+
+        List<TodoSummary> todoSummaryList = results.getMappedResults();
+        this.lineService.pushMessage(todoSummaryList);
+
     }
 }
