@@ -1,5 +1,8 @@
 package com.assignment.todo.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class LineMessage {
     private String type;
     private String id;
