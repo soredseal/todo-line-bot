@@ -3,6 +3,7 @@ package com.assignment.todo.service;
 import com.assignment.todo.model.Todo;
 import com.assignment.todo.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -61,20 +62,22 @@ public class TodoService {
     }
 
     public List<Todo> list(String user) {
-        return todoRepository.findByUser(user);
+        return todoRepository.findByUser(user, Sort.by(Sort.Order.desc("important"), Sort.Order.asc("time")));
     }
 
-    public Todo markImportant(String id, Boolean flag) {
+    public List<Todo> markImportant(String user, String id, Boolean flag) {
         Query q = new Query(Criteria.where("id").is(id));
         Update u = Update
                 .update("important", flag);
-        return this.template.findAndModify(q, u, Todo.class);
+        this.template.findAndModify(q, u, Todo.class);
+        return list(user);
     }
 
-    public Todo markCompleted(String id, Boolean flag) {
+    public List<Todo> markCompleted(String user, String id, Boolean flag) {
         Query q = new Query(Criteria.where("id").is(id));
         Update u = Update
                 .update("completed", flag);
-        return this.template.findAndModify(q, u, Todo.class);
+        this.template.findAndModify(q, u, Todo.class);
+        return list(user);
     }
 }

@@ -44,16 +44,14 @@ public class TodoRestController {
         return ResponseEntity.ok(todoService.list(user));
     }
 
-    @PutMapping("/important")
-    public ResponseEntity<String> updateImportant(@RequestBody UpdateTodo update) {
-        todoService.markImportant(update.getId(), update.getFlag());
-        return ResponseEntity.ok(null);
+    @PutMapping("/important/{user}")
+    public ResponseEntity<List<Todo>> updateImportant(@PathVariable("user") String user, @RequestBody UpdateTodo update) {
+        return ResponseEntity.ok(todoService.markImportant(user, update.getId(), update.getFlag()));
     }
 
-    @PutMapping("/completed")
-    public ResponseEntity<String> updateCompletes(@RequestBody UpdateTodo update) {
-        todoService.markCompleted(update.getId(), update.getFlag());
-        return ResponseEntity.ok(null);
+    @PutMapping("/completed/{user}")
+    public ResponseEntity<List<Todo>> updateCompletes(@PathVariable("user") String user, @RequestBody UpdateTodo update) {
+        return ResponseEntity.ok(todoService.markCompleted(user, update.getId(), update.getFlag()));
     }
 
     private Boolean validateSignature(String header, String body) {
